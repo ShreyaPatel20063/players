@@ -1,25 +1,25 @@
-import { Player } from "../types/player";
+// src/components/PlayerList.tsx
+"use client";
 
-interface PlayerListProps {
+import { Player } from "../types/player";
+import styles from "./PlayerList.module.css"; // Import the CSS module
+
+type PlayerListProps = {
   players: Player[];
   onEdit: (player: Player) => void;
-}
-
-const PlayerList = ({ players, onEdit }: PlayerListProps) => {
-  return (
-    <div>
-      <h2>Player List</h2>
-      <ul>
-        {players.map((player) => (
-          <li key={player.id}>
-            <strong>{player.name}</strong> - {player.role} ({player.team}){" "}
-            {player.isCaptain && "(Captain)"} {player.isViceCaptain && "(Vice-Captain)"}
-            <button onClick={() => onEdit(player)}>Edit</button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
 };
 
-export default PlayerList;
+export default function PlayerList({ players, onEdit }: PlayerListProps) {
+  return (
+    <div className={styles.listContainer}>
+      {players.map((player) => (
+        <div key={player.id} className={styles.playerItem}>
+          <span className={styles.playerName}>{player.name}</span>
+          <button onClick={() => onEdit(player)} className={styles.editButton}>
+            Edit
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}

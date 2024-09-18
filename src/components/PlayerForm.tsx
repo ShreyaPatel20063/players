@@ -1,72 +1,79 @@
+// src/components/PlayerForm.tsx
+"use client";
+
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Player, Role } from "../types/player";
+import styles from "./PlayerForm.module.css"; // Import the CSS module
 
 const roles: Role[] = ["Batsman", "Bowler", "All Rounder", "WK"];
 
-const playerSchema = z.object({
+type PlayerFormProps = {
+  onSubmit: (player: Player) => void;
+  initialData?: Player;
+  teams: string[];
+};
+
+const schema = z.object({
   name: z.string().min(1, "Name is required"),
-  role: z.enum(roles),
+  role: z.enum([roles[0], ...roles.map(String)]),
   isCaptain: z.boolean(),
   isViceCaptain: z.boolean(),
-  team: z.string().min(1, "Team is required")
+  team: z.string(),
 });
 
-type PlayerFormData = z.infer<typeof playerSchema>;
-
-interface PlayerFormProps {
-  initialData?: Player;
-  onSubmit: (data: PlayerFormData) => void;
-  teams: string[];
-}
-
-const PlayerForm = ({ initialData, onSubmit, teams }: PlayerFormProps) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<PlayerFormData>({
-    resolver: zodResolver(playerSchema),
-    defaultValues: initialData || { isCaptain: false, isViceCaptain: false }
+export default function PlayerForm({ onSubmit, initialData, teams }: PlayerFormProps) {
+  const { register, handleSubmit, formState: { errors } } = useForm<Player>({
+    resolver: zodResolver(schema),
+    defaultValues: initialData,
   });
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <div>
-        <label>Name</label>
-        <input {...register("name")} />
-        {errors.name && <p>{errors.name.message}</p>}
+    <form onSubmit={handleSubmit(onSubmit)} className={styles.formContainer}>
+      <div className={styles.formGroup}>
+        <label className={styles.label}>Name</label>
+        <input {...register("name")} className={styles.input} />
+        {errors.name && <span>{errors.name.message}</span>}
       </div>
-      <div>
-        <label>Role</label>
-        <select {...register("role")}>
+
+      <div className={styles.formGroup}>
+        <label className={styles.label}>Role</label>
+        <select {...register("role")} className={styles.input}>
           {roles.map((role) => (
             <option key={role} value={role}>
               {role}
             </option>
           ))}
         </select>
-        {errors.role && <p>{errors.role.message}</p>}
       </div>
-      <div>
-        <label>Team</label>
-        <select {...register("team")}>
+
+      <div className={styles.formGroup}>
+        <label className={styles.label}>
+          <input type="checkbox" {...register("isCaptain")} />
+          Is Captain
+        </label>
+      </div>
+
+      <div className={styles.formGroup}>
+        <label className={styles.label}>
+          <input type="checkbox" {...register("isViceCaptain")} />
+          Is Vice-Captain
+        </label>
+      </div>
+
+      <div className={styles.formGroup}>
+        <label className={styles.label}>Team</label>
+        <select {...register("team")} className={styles.input}>
           {teams.map((team) => (
             <option key={team} value={team}>
               {team}
             </option>
           ))}
         </select>
-        {errors.team && <p>{errors.team.message}</p>}
       </div>
-      <div>
-        <label>Captain</label>
-        <input type="checkbox" {...register("isCaptain")} />
-      </div>
-      <div>
-        <label>Vice-Captain</label>
-        <input type="checkbox" {...register("isViceCaptain")} />
-      </div>
-      <button type="submit">Submit</button>
+
+      <button type="submit" className={styles.submitButton}>Submit</button>
     </form>
   );
-};
-
-export default PlayerForm;
+}
